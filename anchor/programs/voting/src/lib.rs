@@ -33,6 +33,11 @@ pub mod voting {
     ) -> Result<()> {
         let candidate = &mut ctx.accounts.candidate;
 
+        let poll = &mut ctx.accounts.poll;
+        msg!("Candidate amount before: {}", poll.candidate_amount);
+        poll.candidate_amount += 1;
+        msg!("Candidate amount after: {}", poll.candidate_amount);
+
         candidate.candidate_name = candidate_name;
         candidate.candidate_votes = 0;
 
@@ -47,6 +52,7 @@ pub struct InitialiseCandidate<'info> {
     pub signer: Signer<'info>,
 
     #[account(
+        mut,
         seeds = [poll_id.to_le_bytes().as_ref()],
         bump
     )]

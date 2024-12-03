@@ -7,6 +7,7 @@
     anchor build
 
 @test:
+    # just copy-so
     just test-skiplocalval
 
 @test-skiplocalval:
@@ -16,3 +17,6 @@
 @test-localval:
     cd anchor && \
     anchor test --skip-deploy
+
+@copy-so:
+    cp anchor/target/deploy/voting.so anchor/tests/fixtures/

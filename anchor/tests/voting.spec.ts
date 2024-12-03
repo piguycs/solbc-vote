@@ -93,7 +93,11 @@ describe("voting", () => {
     );
     const c2 = await votingProgram.account.candidate.fetch(addressC2);
 
-    console.debug({ c0, c1, c2 });
+    const [pollAddress] = PublicKey.findProgramAddressSync(
+      [new anchor.BN(POLL_ID).toArrayLike(Buffer, "le", 8)],
+      VOTING_ADDRESS,
+    );
+    const poll = await votingProgram.account.poll.fetch(pollAddress);
 
     expect(c0.candidateName).toEqual(CANDIDATE_NAMES[0]);
     expect(c1.candidateName).toEqual(CANDIDATE_NAMES[1]);
@@ -102,6 +106,8 @@ describe("voting", () => {
     expect(c0.candidateVotes.toNumber()).toEqual(0);
     expect(c1.candidateVotes.toNumber()).toEqual(0);
     expect(c2.candidateVotes.toNumber()).toEqual(0);
+
+    expect(poll.candidateAmount.toNumber()).toEqual(3);
   });
 
   it("Vote for Candidate", async () => {});
