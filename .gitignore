@@ -1,4 +1,8 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ldeger stuff
+test-ledger/
+
+# built stuff
+*.so
 
 # dependencies
 /node_modules
