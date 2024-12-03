@@ -15,6 +15,8 @@ const VOTING_ADDRESS = new PublicKey(
   "AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ",
 );
 
+const CANDIDATE_NAMES = ["Arch Linux", "Ubuntu", "Fedora"];
+
 describe("voting", () => {
   let context;
   let provider;
@@ -54,8 +56,6 @@ describe("voting", () => {
   });
 
   it("Initialise Candidata", async () => {
-    const CANDIDATE_NAMES = ["Arch Linux", "Ubuntu", "Fedora"];
-
     await votingProgram.methods
       .initialiseCandidate(CANDIDATE_NAMES[0], new anchor.BN(POLL_ID))
       .rpc();
@@ -110,5 +110,43 @@ describe("voting", () => {
     expect(poll.candidateAmount.toNumber()).toEqual(3);
   });
 
-  it("Vote for Candidate", async () => {});
+  it("Vote for Candidate", async () => {
+    await votingProgram.methods
+      .vote(CANDIDATE_NAMES[0], new anchor.BN(POLL_ID))
+      .rpc();
+    await votingProgram.methods
+      .vote(CANDIDATE_NAMES[1], new anchor.BN(POLL_ID))
+      .rpc();
+
+    const [addressC0] = PublicKey.findProgramAddressSync(
+      [
+        new anchor.BN(POLL_ID).toArrayLike(Buffer, "le", 8),
+        Buffer.from(CANDIDATE_NAMES[0]),
+      ],
+      VOTING_ADDRESS,
+    );
+    const c0 = await votingProgram.account.candidate.fetch(addressC0);
+
+    const [addressC1] = PublicKey.findProgramAddressSync(
+      [
+        new anchor.BN(POLL_ID).toArrayLike(Buffer, "le", 8),
+        Buffer.from(CANDIDATE_NAMES[1]),
+      ],
+      VOTING_ADDRESS,
+    );
+    const c1 = await votingProgram.account.candidate.fetch(addressC1);
+
+    const [addressC2] = PublicKey.findProgramAddressSync(
+      [
+        new anchor.BN(POLL_ID).toArrayLike(Buffer, "le", 8),
+        Buffer.from(CANDIDATE_NAMES[2]),
+      ],
+      VOTING_ADDRESS,
+    );
+    const c2 = await votingProgram.account.candidate.fetch(addressC2);
+
+    expect(c0.candidateVotes.toNumber()).toEqual(1);
+    expect(c1.candidateVotes.toNumber()).toEqual(1);
+    expect(c2.candidateVotes.toNumber()).toEqual(0);
+  });
 });
